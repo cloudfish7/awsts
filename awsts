@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # This command is simplify for logging by aws-google-auth
+# To execute, need peco command
 
 GOOGLE_USERNAME=YOURMAIL_ADDRESS
 GOOGLE_IDP_ID=YOUR_GOOGLE_IDP
@@ -12,16 +13,10 @@ ROLE_LIST[1]="arn:aws:iam::123456789012:role/stg_admin"
 ROLE_LIST[2]="arn:aws:iam::123456789012:role/dev_admin"
 
 
-for ((i = 0; i < ${#ROLE_LIST[@]}; i++)) {
-    echo "ROLE_LIST[$i] = ${ROLE_LIST[$i]}"
-}
+role=$(echo ${ROLE_LIST[@]} |tr ' ' '\n'| peco)
 
-echo ---------------------------
-echo -n "INPUT NO:"
-read role_no
-
-PROFILE_NAME=`echo ${ROLE_LIST[$role_no]} | awk -F/ '{print $2}'`
-echo ${ROLE_LIST[$role_no]}
+PROFILE_NAME=`echo ${role} | awk -F/ '{print $2}'`
+echo ${role}
 echo ${PROFILE_NAME}
 
 aws-google-auth -u $GOOGLE_USERNAME -I $GOOGLE_IDP_ID -S $GOOGLE_SP_ID -D -d 14400 -r ${ROLE_LIST[$role_no]} -p $PROFILE_NAME -R ap-northeast-1
@@ -29,7 +24,6 @@ if [ $? -gt 0 ]; then
   echo "Login Failure!!"
   return
 fi
-
 
 # If it define AWS_PROFILE to env, execute 'source awsts[this command]'
 #export AWS_PROFILE=$PROFILE_NAME
